@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+{% block title %}Dashboard — Digital Portal{% endblock %}
+
+{% block body %}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">Dashboard</h1>
+    <p class="text-base-content/60 text-sm mt-1">Welcome to the Digital Portal</p>
+  </div>
+
+  <h2 class="text-lg font-semibold mb-4">Available Applets</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    {% for applet in applets %}
+      <div class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow">
+        <div class="card-body">
+          <h2 class="card-title">{{ applet.icon }} {{ applet.name }}</h2>
+          <p class="text-sm text-base-content/60">{{ applet.description }}</p>
+          <div class="card-actions justify-between items-center mt-2">
+            <div class="badge {{ applet.status == 'online' ? 'badge-success' : 'badge-warning' }} badge-sm">
+              {{ applet.status }}
+            </div>
+            {% if applet.slug %}
+              <a href="{{ path('applet_show', {slug: applet.slug}) }}" class="btn btn-primary btn-sm">Open →</a>
+            {% else %}
+              <span class="btn btn-primary btn-sm btn-disabled">Open →</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="col-span-3 text-center text-base-content/30 py-16">
+        <div class="text-5xl mb-3">📭</div>
+        <p>No applets available yet.</p>
+        {% if is_granted('ROLE_ADMIN') %}
+          <a href="{{ path('admin_applet_new') }}" class="btn btn-primary btn-sm mt-4">Register one</a>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    {% if is_granted('ROLE_ADMIN') %}
+      <a href="{{ path('admin_applet_new') }}"
+         class="card bg-base-100 shadow-md border-2 border-dashed border-base-300 hover:border-primary transition-colors">
+        <div class="card-body items-center justify-center text-center text-base-content/30">
+          <span class="text-4xl">＋</span>
+          <p class="text-sm mt-2">Register applet</p>
+        </div>
+      </a>
+    {% endif %}
+  </div>
+{% endblock %}

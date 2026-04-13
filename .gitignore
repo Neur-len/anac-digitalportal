@@ -12,3 +12,12 @@
 
 ## Env
 .env*
+
+###> pentatrion/vite-bundle ###
+/node_modules/
+/public/build/
+###< pentatrion/vite-bundle ###
+
+
+## personal files
+._*

@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+{% block title %}Admin — Digital Portal{% endblock %}
+
+{% block body %}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">Control Panel</h1>
+    <p class="text-base-content/60 text-sm mt-1">Manage applets and users</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <div class="stat bg-base-100 rounded-box shadow-sm">
+      <div class="stat-title">Registered Applets</div>
+      <div class="stat-value text-primary">{{ applet_count }}</div>
+      <div class="stat-actions">
+        <a href="{{ path('admin_applets') }}" class="btn btn-sm btn-ghost">Manage →</a>
+      </div>
+    </div>
+    <div class="stat bg-base-100 rounded-box shadow-sm">
+      <div class="stat-title">Users</div>
+      <div class="stat-value">{{ user_count }}</div>
+      <div class="stat-actions">
+        <a href="{{ path('admin_users') }}" class="btn btn-sm btn-ghost">Manage →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex gap-3">
+    <a href="{{ path('admin_applet_new') }}" class="btn btn-primary">
+      ＋ Register Applet
+    </a>
+    <a href="{{ path('admin_users') }}" class="btn btn-ghost">
+      👤 Manage Users
+    </a>
+  </div>
+{% endblock %}

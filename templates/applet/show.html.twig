@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ applet.name }} — Digital Portal{% endblock %}
+
+{% block body %}
+
+  {# Header #}
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold">
+        {{ applet.icon }} {{ applet.name }}
+      </h1>
+      <p class="text-base-content/60 text-sm mt-1">{{ applet.description }}</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="badge {{ applet.status == 'online' ? 'badge-success' : 'badge-error' }}">
+        {{ applet.status }}
+      </div>
+      <a href="/" class="btn btn-ghost btn-sm">← Back</a>
+    </div>
+  </div>
+
+  {# Applet iframe — proxied through portal #}
+  <div class="card bg-base-100 shadow-md">
+    <div class="card-body p-0 overflow-hidden rounded-box">
+<iframe
+  src="{{ path('proxy_applet', {slug: applet.slug}) }}"
+  class="w-full border-0"
+  style="height: calc(100vh - 220px);"
+  title="{{ applet.name }}"
+></iframe>
+    </div>
+  </div>
+
+{% endblock %}

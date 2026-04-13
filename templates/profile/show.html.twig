@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+{% block title %}Profile — {{ user.email }}{% endblock %}
+
+{% block body %}
+
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">My Profile</h1>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    {# Profile card #}
+    <div class="card bg-base-100 shadow-md">
+      <div class="card-body items-center text-center">
+        <div class="avatar placeholder mb-3">
+          <div class="bg-primary text-primary-content rounded-full w-20">
+            <span class="text-3xl font-bold">
+              {{ user.firstName ? user.firstName|first|upper : user.email|first|upper }}
+            </span>
+          </div>
+        </div>
+        <h2 class="card-title">
+          {{ user.firstName ~ ' ' ~ user.lastName ?: user.email }}
+        </h2>
+        <p class="text-base-content/50 text-sm">{{ user.email }}</p>
+
+        <div class="flex flex-wrap gap-1 justify-center mt-2">
+          {% for role in user.getRoles() %}
+            <div class="badge badge-outline badge-sm">{{ role }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="text-sm text-base-content/60 w-full text-left space-y-1">
+          <div class="flex justify-between">
+            <span>Status</span>
+            <span class="badge {{ user.isActive() ? 'badge-success' : 'badge-error' }} badge-sm">
+              {{ user.isActive() ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span>Last login</span>
+            <span>{{ user.lastLoginAt ? user.lastLoginAt|date('d M Y H:i') : 'Never' }}</span>
+          </div>
+        </div>
+
+        <a href="{{ path('profile_settings') }}" class="btn btn-primary btn-sm w-full mt-4">
+          ⚙️ Settings
+        </a>
+      </div>
+    </div>
+
+    {# Activity log #}
+    <div class="card bg-base-100 shadow-md lg:col-span-2">
+      <div class="card-body">
+        <h2 class="card-title text-lg mb-2">Recent Activity</h2>
+
+        {% if logs is empty %}
+          <p class="text-base-content/40 text-sm">No activity recorded yet.</p>
+        {% else %}
+          <ul class="timeline timeline-vertical timeline-compact">
+            {% for log in logs %}
+              <li>
+                <div class="timeline-middle">
+                  <div class="w-2 h-2 rounded-full bg-primary mt-1"></div>
+                </div>
+                <div class="timeline-end mb-4">
+                  <div class="text-sm font-medium">
+                    {% if log.action == 'login' %}🔑 Logged in
+                    {% elseif log.action == 'password_changed' %}🔐 Changed password
+                    {% elseif log.action == 'profile_updated' %}👤 Updated profile
+                    {% else %}{{ log.action }}
+                    {% endif %}
+                  </div>
+                  <div class="text-xs text-base-content/40">
+                    {{ log.createdAt|date('d M Y H:i') }}
+                    {% if log.context.ip is defined %} · {{ log.context.ip }}{% endif %}
+                  </div>
+                </div>
+                <hr/>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+{% endblock %}

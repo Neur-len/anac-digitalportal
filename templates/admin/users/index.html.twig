@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+{% block title %}Users — Admin{% endblock %}
+
+{% block body %}
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold">Users</h1>
+      <p class="text-base-content/60 text-sm mt-1">{{ users|length }} registered</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="{{ path('admin_user_create') }}" class="btn btn-primary btn-sm">＋ Create User</a>
+      <a href="{{ path('admin_user_new') }}" class="btn btn-ghost btn-sm">📧 Invite User</a>
+    </div>
+  </div>
+
+  {% for flash in app.flashes('success') %}
+    <div class="alert alert-success mb-4">{{ flash }}</div>
+  {% endfor %}
+
+  <div class="overflow-x-auto bg-base-100 rounded-box shadow">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Roles</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td>{{ user.email }}</td>
+            <td>
+              {% for role in user.getRoles() %}
+                <div class="badge badge-outline badge-sm">{{ role }}</div>
+              {% endfor %}
+            </td>
+            <td>
+              {% if user.isActive() %}
+                <div class="badge badge-success badge-sm">Active</div>
+              {% elseif user.inviteToken %}
+                <div class="badge badge-warning badge-sm">Invite pending</div>
+              {% else %}
+                <div class="badge badge-error badge-sm">Inactive</div>
+              {% endif %}
+            </td>
+            <td class="flex gap-2">
+              <a href="{{ path('admin_user_edit', {id: user.id}) }}"
+                 class="btn btn-ghost btn-xs">✏️</a>
+
+              {% if user.inviteToken %}
+                <form method="POST" action="{{ path('admin_user_resend_invite', {id: user.id}) }}">
+                  <input type="hidden" name="_token" value="{{ csrf_token('resend-'~user.id) }}">
+                  <button class="btn btn-ghost btn-xs">📧 Resend</button>
+                </form>
+              {% endif %}
+
+              <form method="POST" action="{{ path('admin_user_delete', {id: user.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete-user-'~user.id) }}">
+                <button class="btn btn-ghost btn-xs text-error"
+                        onclick="return confirm('Delete {{ user.email }}?')">🗑️</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ title }} — Admin{% endblock %}
+
+{% block body %}
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">{{ title }}</h1>
+    <a href="{{ path('admin_users') }}" class="text-sm text-base-content/50 hover:underline">← Back to users</a>
+  </div>
+
+  <div class="card bg-base-100 shadow-md max-w-md">
+    <div class="card-body">
+      {{ form_start(form, {attr: {class: 'flex flex-col gap-4'}}) }}
+        {% for field in form %}
+          <div class="form-control">
+            {{ form_label(field, null, {label_attr: {class: 'label label-text font-medium'}}) }}
+            {{ form_widget(field) }}
+            {{ form_errors(field) }}
+          </div>
+        {% endfor %}
+        <div class="flex gap-3 mt-2">
+          <button type="submit" class="btn btn-primary">{{ title }}</button>
+          <a href="{{ path('admin_users') }}" class="btn btn-ghost">Cancel</a>
+        </div>
+      {{ form_end(form) }}
+    </div>
+  </div>
+{% endblock %}
