@@ -6,78 +6,108 @@
   <title>Login — Digital Portal</title>
   {{ vite_entry_link_tags('app') }}
 </head>
-<body class="min-h-screen bg-base-200 flex items-center justify-center">
+<body class="min-h-screen bg-base-200 flex flex-col lg:flex-row">
 
-  <div class="card bg-base-100 shadow-xl w-full max-w-sm">
-    <div class="card-body">
+  {# ── LEFT SIDE: Login Form ── #}
+  <div class="flex-1 flex items-center justify-center p-6 lg:p-12">
+    <div class="card bg-base-100 shadow-xl w-full max-w-sm">
+      <div class="card-body">
 
-      <div class="text-center mb-4">
-        <div class="text-4xl mb-2">🏛</div>
-        <h1 class="text-xl font-bold">Digital Portal</h1>
-        <p class="text-base-content/50 text-sm">
-          {{ step == 'otp' ? 'Enter your verification code' : 'Sign in to continue' }}
-        </p>
+        <div class="text-center mb-4">
+          <div class="text-4xl mb-2">🏛</div>
+          <h1 class="text-xl font-bold">Digital Portal</h1>
+          <p class="text-base-content/50 text-sm">
+            {{ step == 'otp' ? 'Enter your verification code' : 'Sign in to continue' }}
+          </p>
+        </div>
+
+        {% if error %}
+          <div class="alert alert-error text-sm mb-2">{{ error }}</div>
+        {% endif %}
+
+        {% if step == 'credentials' %}
+
+          <form method="POST" class="flex flex-col gap-3">
+            <input type="hidden" name="step" value="credentials">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('auth') }}">
+
+            <div class="form-control">
+              <label class="label"><span class="label-text">Email</span></label>
+              <input type="email" name="email" required autofocus
+                     class="input input-bordered w-full"
+                     placeholder="you@example.com">
+            </div>
+
+            <div class="form-control">
+              <label class="label"><span class="label-text">Password</span></label>
+              <input type="password" name="password" required
+                     class="input input-bordered w-full"
+                     placeholder="••••••••">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full mt-2">
+              Continue →
+            </button>
+          </form>
+
+        {% else %}
+
+          <form method="POST" action="{{ path('auth_login') }}" class="flex flex-col gap-3">
+            <input type="hidden" name="step" value="otp">
+            <input type="hidden" name="email" value="{{ email }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('auth') }}">
+
+            <div class="alert alert-info text-sm">
+              A 6-digit code was sent to <strong>{{ email }}</strong>
+            </div>
+
+            <div class="form-control">
+              <label class="label"><span class="label-text">Verification Code</span></label>
+              <input type="text" name="otp" required autofocus
+                     maxlength="6" pattern="[0-9]{6}"
+                     class="input input-bordered w-full text-center text-2xl tracking-widest"
+                     placeholder="000000">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full mt-2">
+              Verify →
+            </button>
+
+            <a href="{{ path('auth_login') }}" class="btn btn-ghost btn-sm w-full"
+               onclick="fetch('', {method:'POST', body: new URLSearchParams({step: 'cancel'})})">
+              ← Use different account
+            </a>
+          </form>
+
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+  {# ── RIGHT SIDE: Logos Showcase ── #}
+  {# Hidden on mobile, takes remaining 50% on large screens #}
+  <div class="hidden lg:flex lg:flex-1 bg-base-300 relative items-center justify-center p-12 overflow-hidden">
+    
+    {# Optional: A subtle gradient background to add depth #}
+    <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10"></div>
+
+    <div class="relative z-10 flex flex-col gap-10 items-center w-full max-w-md">
+      
+      {# First Logo Container #}
+      <div class="w-full aspect-[3/2] bg-base-100 rounded-3xl shadow-2xl flex items-center justify-center p-8 backdrop-blur-sm bg-opacity-80 transition-transform duration-500 hover:scale-105">
+
+        {# OPTION 2: If you are using Symfony's asset helper (Recommended) #}
+        <img src="{{ asset('images/anac_logo.png') }}" alt="Anac Logo" class="w-full h-full object-contain drop-shadow-md">
+      
       </div>
 
-      {% if error %}
-        <div class="alert alert-error text-sm mb-2">{{ error }}</div>
-      {% endif %}
-
-      {% if step == 'credentials' %}
-
-        <form method="POST" class="flex flex-col gap-3">
-          <input type="hidden" name="step" value="credentials">
-          <input type="hidden" name="_csrf_token" value="{{ csrf_token('auth') }}">
-
-          <div class="form-control">
-            <label class="label"><span class="label-text">Email</span></label>
-            <input type="email" name="email" required autofocus
-                   class="input input-bordered w-full"
-                   placeholder="you@example.com">
-          </div>
-
-          <div class="form-control">
-            <label class="label"><span class="label-text">Password</span></label>
-            <input type="password" name="password" required
-                   class="input input-bordered w-full"
-                   placeholder="••••••••">
-          </div>
-
-          <button type="submit" class="btn btn-primary w-full mt-2">
-            Continue →
-          </button>
-        </form>
-
-      {% else %}
-
-        <form method="POST" action="{{ path('auth_login') }}" class="flex flex-col gap-3">
-          <input type="hidden" name="step" value="otp">
-          <input type="hidden" name="email" value="{{ email }}">
-          <input type="hidden" name="_csrf_token" value="{{ csrf_token('auth') }}">
-
-          <div class="alert alert-info text-sm">
-            A 6-digit code was sent to <strong>{{ email }}</strong>
-          </div>
-
-          <div class="form-control">
-            <label class="label"><span class="label-text">Verification Code</span></label>
-            <input type="text" name="otp" required autofocus
-                   maxlength="6" pattern="[0-9]{6}"
-                   class="input input-bordered w-full text-center text-2xl tracking-widest"
-                   placeholder="000000">
-          </div>
-
-          <button type="submit" class="btn btn-primary w-full mt-2">
-            Verify →
-          </button>
-
-          <a href="{{ path('auth_login') }}" class="btn btn-ghost btn-sm w-full"
-             onclick="fetch('', {method:'POST', body: new URLSearchParams({step: 'cancel'})})">
-            ← Use different account
-          </a>
-        </form>
-
-      {% endif %}
+      {# Second Logo Container #}
+      <div class="w-full aspect-[3/2] bg-base-100 rounded-3xl shadow-2xl flex items-center justify-center p-8 backdrop-blur-sm bg-opacity-80 transition-transform duration-500 hover:scale-105">
+        
+        <img src="{{ asset('images/mcv_logo.png') }}" alt="Ministere Logo" class="w-full h-full object-contain drop-shadow-md">
+      
+      </div>
 
     </div>
   </div>

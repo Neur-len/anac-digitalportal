@@ -11,7 +11,8 @@
 
 
 ## Env
-.env*
+.env
+.env.dev
 
 ###> pentatrion/vite-bundle ###
 /node_modules/
@@ -21,3 +22,4 @@
 
 ## personal files
 ._*
+Gemini.md

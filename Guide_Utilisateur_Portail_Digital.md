@@ -369,7 +369,7 @@ Remplissez :
 
 L'utilisateur recevra ses identifiants par email et sera **obligé de changer son mot de passe** à la première connexion.
 
-> En développement, l'email est enregistré dans `var/log/dev.log` plutôt qu'envoyé réellement.
+> En développement, l'email est enregistré dans `var/log/otp.log` plutôt qu'envoyé réellement.
 
 ### Inviter un utilisateur par email
 

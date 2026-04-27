@@ -1,146 +1,149 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="corporate">
+<html lang="fr" data-theme="corporate">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Digital Portal{% endblock %}</title>
-  {{ vite_entry_link_tags('app') }}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Portail Digital{% endblock %}</title>
+    {{ vite_entry_link_tags('app') }}
+
+    {# ── THEME INITIALIZATION (Prevents White Flash) ── #}
+    <script>
+      (function() {
+        // Check localStorage first for immediate UI response
+        const saved = localStorage.getItem('portal-theme');
+        // Fallback to the Database theme if localStorage is empty
+        const dbTheme = '{{ app.user and app.user.theme ? app.user.theme : "" }}';
+
+        const themeToApply = saved || dbTheme || 'corporate';
+
+        document.documentElement.setAttribute('data-theme', themeToApply);
+      })();
+    </script>
 </head>
-<body class="min-h-screen bg-base-200">
+<body class="min-h-screen bg-base-200 font-sans antialiased">
 
-  {# ── Navbar ── #}
-  <div class="navbar bg-base-100 shadow-md px-6 sticky top-0 z-50">
-
-    {# Mobile hamburger #}
-    <div class="navbar-start">
-      <label for="sidebar-drawer" class="btn btn-ghost lg:hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-             viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-      </label>
-      <a href="/" class="text-xl font-bold text-primary ml-2">
-        🏛 Digital Portal
-      </a>
-    </div>
-
-    <div class="navbar-end gap-3">
-
-      {# Theme switcher #}
-      <div class="dropdown dropdown-end">
-        <label tabindex="0" class="btn btn-ghost btn-sm gap-1">
-          🎨 <span class="hidden sm:inline">Theme</span>
-          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
-          </svg>
-        </label>
-        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40 z-50">
-          <li><a onclick="setTheme('corporate')">🏢 Corporate</a></li>
-          <li><a onclick="setTheme('light')">☀️ Light</a></li>
-          <li><a onclick="setTheme('dark')">🌙 Dark</a></li>
-          <li><a onclick="setTheme('forest')">🌲 Forest</a></li>
-        </ul>
-      </div>
-
-      {# User dropdown #}
-      <div class="dropdown dropdown-end">
-        <label tabindex="0" class="btn btn-ghost btn-circle avatar placeholder">
-          <div class="bg-primary text-primary-content rounded-full w-9">
-            <span class="text-sm font-bold">
-              {{ app.user ? app.user.getUserIdentifier()|slice(0,1)|upper : '?' }}
-            </span>
-          </div>
-        </label>
-        <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-48 z-50 mt-2">
-          <li class="menu-title">
-            <span>{{ app.user ? app.user.getUserIdentifier() : 'Guest' }}</span>
-          </li>
-          <li><a href="{{ path('profile_show') }}">👤 Profile</a></li>
-          <li><a href="{{ path('profile_settings') }}">⚙️ Settings</a></li>
-          <li><hr class="my-1"></li>
-          <li><a href="/auth/logout" class="text-error">🚪 Logout</a></li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
-
-  {# ── Drawer layout (mobile sidebar) ── #}
   <div class="drawer lg:drawer-open">
     <input id="sidebar-drawer" type="checkbox" class="drawer-toggle"/>
 
+    {# ── Main Content Area ── #}
     <div class="drawer-content flex flex-col">
-      <main class="flex-1 p-6">
+      
+      {# ── Navbar (Inside content so it scrolls/behaves with the drawer) ── #}
+      <header class="navbar bg-base-100/80 backdrop-blur-md shadow-sm px-4 sticky top-0 z-30 border-b border-base-200">
+        <div class="flex-none lg:hidden">
+          <label for="sidebar-drawer" class="btn btn-ghost btn-square">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </label>
+        </div>
+        
+        <div class="flex-1 lg:hidden">
+          <a href="/" class="text-xl font-bold text-primary ml-2">🏛 Portail Digital</a>
+        </div>
+
+        <div class="flex-1 hidden lg:flex">
+          {# Breadcrumbs or Page Title could go here #}
+        </div>
+
+        <div class="flex-none gap-2">
+          {# Theme Switcher #}
+          <div class="dropdown dropdown-end">
+            <label tabindex="0" class="btn btn-ghost btn-sm">🎨 <span class="hidden md:inline">Theme</span></label>
+            <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 border border-base-200 mt-4">
+              <li><a onclick="setTheme('corporate')">🏢 Corporate</a></li>
+              <li><a onclick="setTheme('light')">☀️ Light</a></li>
+              <li><a onclick="setTheme('dark')">🌙 Dark</a></li>
+              <li><a onclick="setTheme('forest')">🌲 Forest</a></li>
+            </ul>
+          </div>
+
+          {# User Profile #}
+          <div class="dropdown dropdown-end">
+            <label tabindex="0" class="btn btn-ghost btn-circle avatar placeholder border border-base-300">
+              <div class="bg-primary text-primary-content rounded-full w-9">
+                <span class="text-sm font-bold">{{ app.user ? app.user.getUserIdentifier()|slice(0,1)|upper : '?' }}</span>
+              </div>
+            </label>
+            <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-56 mt-4 border border-base-200">
+              <li class="menu-title px-4 py-2 border-b border-base-100">
+                <span class="text-xs opacity-50">Signed in as</span>
+                <div class="font-bold truncate">{{ app.user ? app.user.getUserIdentifier() : 'Guest' }}</div>
+              </li>
+              <li><a href="{{ path('profile_show') }}">👤 Votre Profil</a></li>
+              <li><a href="{{ path('profile_settings') }}">⚙️ Parametre</a></li>
+              <div class="divider my-0"></div>
+              <li><a href="/auth/logout" class="text-error">🚪 Deconnexion</a></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 p-6 lg:p-10 max-w-7xl w-full mx-auto">
         {% block body %}{% endblock %}
       </main>
+
+      <footer class="p-6 text-center text-xs text-base-content/40">
+        Portal v1.0 · Symfony 7.4 · {{ "now"|date("Y") }}
+      </footer>
     </div>
 
     {# ── Sidebar ── #}
     <div class="drawer-side z-40">
       <label for="sidebar-drawer" class="drawer-overlay"></label>
-      <aside class="w-64 min-h-screen bg-base-100 shadow-inner flex flex-col">
-
-        <div class="p-4 border-b border-base-200">
-          <p class="text-xs text-base-content/50 uppercase tracking-widest">Navigation</p>
+      <aside class="w-72 min-h-screen bg-base-100 border-r border-base-200 flex flex-col">
+        
+        <div class="p-6 hidden lg:block">
+          <a href="/" class="text-2xl font-bold text-primary flex items-center gap-2">
+            🏛 <span class="tracking-tight">Portail Digital</span>
+          </a>
         </div>
 
-        <ul class="menu menu-vertical p-3 flex-1 gap-1">
+        <ul class="menu menu-md p-4 flex-1 gap-1">
+          <li>
+            <a href="{{ path('app_home') }}" class="{{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}">
+              🏠 Tableau de Bord
+            </a>
+          </li>
 
-  <li>
-    <a href="{{ path('app_home') }}"
-       class="{{ app.request.pathInfo == '/' ? 'active' : '' }}">
-      🏠 Dashboard
-    </a>
-  </li>
+          {% set applets = get_nav_applets() %}
+          {% if applets is not empty %}
+            <li class="menu-title mt-4"><span>Applets</span></li>
+            {% for applet in applets %}
+              <li>
+                <a href="{{ path('applet_show', {slug: applet.slug}) }}" 
+                   class="{{ app.request.pathInfo starts with '/applet/' ~ applet.slug ? 'active focus:text-white' : '' }}">
+                  <span class="text-xl">{{ applet.icon }}</span> {{ applet.name }}
+                </a>
+              </li>
+            {% endfor %}
+          {% endif %}
 
-
-
-  {% set applets = get_nav_applets() %}
-    {% if applets is not empty %}
-    <li class="menu-title mt-3"><span>Applets</span></li>
-    {% for applet in applets %}
-      <li>
-        <a href="{{ path('applet_show', {slug: applet.slug}) }}"
-           class="{{ app.request.pathInfo starts with '/applet/' ~ applet.slug ? 'active' : '' }}">
-          {{ applet.icon }} {{ applet.name }}
-        </a>
-      </li>
-    {% endfor %}
-  {% endif %}
-
-  {% if is_granted('ROLE_ADMIN') %}
-    <li class="menu-title mt-3"><span>Admin</span></li>
-    <li>
-      <a href="{{ path('admin_dashboard') }}"
-         class="{{ app.request.pathInfo starts with '/admin' ? 'active' : '' }}">
-        🛠 Control Panel
-      </a>
-    </li>
-    <li><a href="{{ path('admin_users') }}">👤 Users</a></li>
-  {% endif %}
-
-</ul>
-
-        <div class="p-4 border-t border-base-200 text-xs text-base-content/40">
-          Portal v1.0 · Symfony 7.4 
-        </div>
-
+          {% if is_granted('ROLE_ADMIN') %}
+            <li class="menu-title mt-4"><span>Administration</span></li>
+            <li>
+              <a href="{{ path('admin_dashboard') }}" class="{{ app.request.pathInfo starts with '/admin' ? 'active' : '' }}">
+                🛠 Panneau de Control
+              </a>
+            </li>
+            <li><a href="{{ path('admin_users') }}">👤 Gestion Utilisateurs</a></li>
+          {% endif %}
+        </ul>
       </aside>
     </div>
   </div>
 
   {{ vite_entry_script_tags('app') }}
 
-<script>
-  function setTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('portal-theme', theme);
-  }
-  // Priority: DB saved theme > localStorage > default
-  const dbTheme  = '{{ app.user and app.user.theme ? app.user.theme : '' }}';
-  const saved    = dbTheme || localStorage.getItem('portal-theme') || 'corporate';
-  document.documentElement.setAttribute('data-theme', saved);
-</script>
+  <script>
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('portal-theme', theme);
+      
+      // Bonus: If you want to persist to DB without a page reload
+      fetch('/settings/update-theme', { 
+        method: 'POST', 
+        body: JSON.stringify({theme: theme}) 
+      });
+    }
+  </script>
 </body>
 </html>

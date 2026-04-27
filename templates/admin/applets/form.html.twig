@@ -2,32 +2,94 @@
 {% block title %}{{ title }} — Admin{% endblock %}
 
 {% block body %}
-  <div class="mb-6">
-    <h1 class="text-2xl font-bold">{{ title }}</h1>
-    <a href="{{ path('admin_applets') }}" class="text-sm text-base-content/50 hover:underline">← Back to applets</a>
-  </div>
+  <div class="max-w-2xl mx-auto">
+    
+    {# ── Header & Breadcrumbs ── #}
+    <div class="mb-8">
+      <div class="text-sm breadcrumbs text-base-content/50 mb-2">
+        <ul>
+          <li><a href="{{ path('admin_dashboard') }}">Admin</a></li>
+          <li><a href="{{ path('admin_applets') }}">Applets</a></li>
+          <li class="text-base-content font-semibold">{{ title }}</li>
+        </ul>
+      </div>
+      <h1 class="text-3xl font-black tracking-tight">{{ title }}</h1>
+    </div>
 
-  <div class="card bg-base-100 shadow-md max-w-2xl">
-    <div class="card-body">
-      {{ form_start(form, {attr: {class: 'flex flex-col gap-4'}}) }}
-
-        {% for field in form %}
-          <div class="form-control">
-            {{ form_label(field, null, {label_attr: {class: 'label label-text font-medium'}}) }}
-            {{ form_widget(field) }}
-            {% if form_help(field) %}
-              <span class="label-text-alt text-base-content/50 mt-1">{{ form_help(field) }}</span>
-            {% endif %}
-            {{ form_errors(field) }}
+    {# ── Form Card ── #}
+    <div class="card bg-base-100 shadow-xl border-2 border-base-300">
+      <div class="card-body gap-6">
+        
+        <div class="flex items-center gap-3 pb-4 border-b border-base-200">
+          <div class="p-2 bg-primary/10 text-primary rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
           </div>
-        {% endfor %}
-
-        <div class="flex gap-3 mt-2">
-          <button type="submit" class="btn btn-primary">Save Applet</button>
-          <a href="{{ path('admin_applets') }}" class="btn btn-ghost">Cancel</a>
+          <div>
+            <h2 class="card-title text-sm uppercase tracking-widest opacity-60">Applet Configuration</h2>
+            <p class="text-xs opacity-50">Configure how this applet appears in the navigation.</p>
+          </div>
         </div>
 
-      {{ form_end(form) }}
+        {{ form_start(form, {attr: {class: 'flex flex-col gap-5'}}) }}
+
+          {% for field in form %}
+            {% if field.vars.name != '_token' %}
+              <div class="form-control w-full">
+                {{ form_label(field, null, {label_attr: {class: 'label label-text font-bold text-base-content'}}) }}
+                
+                {# Injecting DaisyUI classes into the widget #}
+                {{ form_widget(field, {attr: {
+                  class: 'input input-bordered border-2 w-full focus:border-primary transition-all shadow-sm' ~ (form_errors(field) ? ' border-error' : '')
+                }}) }}
+
+                {% if form_help(field) %}
+                  <label class="label">
+                    <span class="label-text-alt text-base-content/60 italic">{{ form_help(field) }}</span>
+                  </label>
+                {% endif %}
+
+                {% if form_errors(field) %}
+                  <div class="text-error text-xs mt-1 font-medium">
+                    {{ form_errors(field) }}
+                  </div>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+
+          {# Token needs to be rendered manually if we loop through fields #}
+          {{ form_rest(form) }}
+
+          <div class="divider opacity-50"></div>
+
+          <div class="card-actions justify-end gap-3">
+            <a href="{{ path('admin_applets') }}" class="btn btn-ghost">
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-primary px-8">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Save Applet
+            </button>
+          </div>
+
+        {{ form_end(form) }}
+      </div>
     </div>
+
+    {# ── Danger Zone (Optional) ── #}
+    {% if app.request.attributes.get('_route') == 'admin_applet_edit' %}
+      <div class="mt-12 p-6 border-2 border-error/20 rounded-2xl bg-error/5 flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-error">Danger Zone</h3>
+          <p class="text-sm opacity-70">Deleting this applet will remove it from all user sidebars.</p>
+        </div>
+        <button class="btn btn-error btn-outline btn-sm">Delete Applet</button>
+      </div>
+    {% endif %}
+
   </div>
 {% endblock %}

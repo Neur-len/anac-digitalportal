@@ -3,107 +3,110 @@
 
 {% block body %}
 
-  <div class="mb-6">
+  {# Centering the Header #}
+  <div class="mb-6 text-center">
     <h1 class="text-2xl font-bold">Settings</h1>
   </div>
 
-  {% for flash in app.flashes('success') %}
-    <div class="alert alert-success mb-4">✅ {{ flash }}</div>
-  {% endfor %}
+  <div class="max-w-md mx-auto">
+    {% for flash in app.flashes('success') %}
+      <div class="alert alert-success mb-4">✅ {{ flash }}</div>
+    {% endfor %}
 
-  {% if error %}
-    <div class="alert alert-error mb-4">{{ error }}</div>
-  {% endif %}
+    {% if error %}
+      <div class="alert alert-error mb-4">{{ error }}</div>
+    {% endif %}
 
-  {# Tabs #}
-  <div class="tabs tabs-bordered mb-6">
-    <a href="{{ path('profile_settings', {tab: 'profile'}) }}"
-       class="tab {{ tab == 'profile' ? 'tab-active' : '' }}">👤 Profile</a>
-    <a href="{{ path('profile_settings', {tab: 'password'}) }}"
-       class="tab {{ tab == 'password' ? 'tab-active' : '' }}">🔐 Password</a>
-    <a href="{{ path('profile_settings', {tab: 'appearance'}) }}"
-       class="tab {{ tab == 'appearance' ? 'tab-active' : '' }}">🎨 Appearance</a>
+    {# Centering the Tabs #}
+    <div class="tabs tabs-bordered mb-6">
+      <a href="{{ path('profile_settings', {tab: 'profile'}) }}"
+         class="tab {{ tab == 'profile' ? 'tab-active' : '' }}">👤 Profile</a>
+      <a href="{{ path('profile_settings', {tab: 'password'}) }}"
+         class="tab {{ tab == 'password' ? 'tab-active' : '' }}">🔐 Password</a>
+      <a href="{{ path('profile_settings', {tab: 'appearance'}) }}"
+         class="tab {{ tab == 'appearance' ? 'tab-active' : '' }}">🎨 Appearance</a>
+    </div>
+
+    {# Profile tab #}
+    {% if tab == 'profile' %}
+      <div class="card bg-base-100 shadow-md border-2 border-base-300">
+        <div class="card-body">
+          <form method="POST" class="flex flex-col gap-4">
+            <input type="hidden" name="action" value="update_profile">
+
+            <div class="form-control">
+              <label class="label"><span class="label-text">First name</span></label>
+              <input type="text" name="first_name" value="{{ user.firstName }}"
+                     class="input input-bordered border-2 w-full focus:border-primary">
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text">Last name</span></label>
+              <input type="text" name="last_name" value="{{ user.lastName }}"
+                     class="input input-bordered border-2 w-full focus:border-primary">
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text">Email</span></label>
+              <input type="email" value="{{ user.email }}" disabled
+                     class="input input-bordered border-2 w-full input-disabled opacity-50">
+              <span class="label-text-alt text-base-content/40 mt-1">Contact admin to change email.</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-2">Save Profile</button>
+          </form>
+        </div>
+      </div>
+
+    {# Password tab #}
+    {% elseif tab == 'password' %}
+      <div class="card bg-base-100 shadow-md border-2 border-base-300">
+        <div class="card-body">
+          <form method="POST" class="flex flex-col gap-4">
+            <input type="hidden" name="action" value="change_password">
+
+            <div class="form-control">
+              <label class="label"><span class="label-text">Current password</span></label>
+              <input type="password" name="current_password" required
+                     class="input input-bordered border-2 w-full focus:border-primary">
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text">New password</span></label>
+              <input type="password" name="new_password" required minlength="8"
+                     class="input input-bordered border-2 w-full focus:border-primary">
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text">Confirm new password</span></label>
+              <input type="password" name="confirm_password" required minlength="8"
+                     class="input input-bordered border-2 w-full focus:border-primary">
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-2">Update Password</button>
+          </form>
+        </div>
+      </div>
+
+    {# Appearance tab #}
+    {% elseif tab == 'appearance' %}
+      <div class="card bg-base-100 shadow-md border-2 border-base-300">
+        <div class="card-body">
+          <form method="POST" class="flex flex-col gap-4">
+            <input type="hidden" name="action" value="update_theme">
+
+            <div class="form-control">
+              <label class="label"><span class="label-text">Theme</span></label>
+              <select name="theme" class="select select-bordered border-2 w-full focus:border-primary">
+                {% for t in ['corporate', 'light', 'dark', 'forest'] %}
+                  <option value="{{ t }}" {{ user.theme == t ? 'selected' : '' }}>
+                    {{ t|capitalize }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-2">Save Appearance</button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
   </div>
-
-  {# Profile tab #}
-  {% if tab == 'profile' %}
-    <div class="card bg-base-100 shadow-md max-w-md">
-      <div class="card-body">
-        <form method="POST" class="flex flex-col gap-4">
-          <input type="hidden" name="action" value="update_profile">
-
-          <div class="form-control">
-            <label class="label"><span class="label-text">First name</span></label>
-            <input type="text" name="first_name" value="{{ user.firstName }}"
-                   class="input input-bordered w-full">
-          </div>
-          <div class="form-control">
-            <label class="label"><span class="label-text">Last name</span></label>
-            <input type="text" name="last_name" value="{{ user.lastName }}"
-                   class="input input-bordered w-full">
-          </div>
-          <div class="form-control">
-            <label class="label"><span class="label-text">Email</span></label>
-            <input type="email" value="{{ user.email }}" disabled
-                   class="input input-bordered w-full input-disabled">
-            <span class="label-text-alt text-base-content/40 mt-1">Contact admin to change email.</span>
-          </div>
-
-          <button type="submit" class="btn btn-primary">Save Profile</button>
-        </form>
-      </div>
-    </div>
-
-  {# Password tab #}
-  {% elseif tab == 'password' %}
-    <div class="card bg-base-100 shadow-md max-w-md">
-      <div class="card-body">
-        <form method="POST" class="flex flex-col gap-4">
-          <input type="hidden" name="action" value="change_password">
-
-          <div class="form-control">
-            <label class="label"><span class="label-text">Current password</span></label>
-            <input type="password" name="current_password" required
-                   class="input input-bordered w-full">
-          </div>
-          <div class="form-control">
-            <label class="label"><span class="label-text">New password</span></label>
-            <input type="password" name="new_password" required minlength="8"
-                   class="input input-bordered w-full">
-          </div>
-          <div class="form-control">
-            <label class="label"><span class="label-text">Confirm new password</span></label>
-            <input type="password" name="confirm_password" required minlength="8"
-                   class="input input-bordered w-full">
-          </div>
-
-          <button type="submit" class="btn btn-primary">Update Password</button>
-        </form>
-      </div>
-    </div>
-
-  {# Appearance tab #}
-  {% elseif tab == 'appearance' %}
-    <div class="card bg-base-100 shadow-md max-w-md">
-      <div class="card-body">
-        <form method="POST" class="flex flex-col gap-4">
-          <input type="hidden" name="action" value="update_theme">
-
-          <div class="form-control">
-            <label class="label"><span class="label-text">Theme</span></label>
-            <select name="theme" class="select select-bordered w-full">
-              {% for t in ['corporate', 'light', 'dark', 'forest'] %}
-                <option value="{{ t }}" {{ user.theme == t ? 'selected' : '' }}>
-                  {{ t|capitalize }}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <button type="submit" class="btn btn-primary">Save Appearance</button>
-        </form>
-      </div>
-    </div>
-  {% endif %}
 
 {% endblock %}

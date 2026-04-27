@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
-{% block title %}Profile — {{ user.email }}{% endblock %}
+{% block title %}Profil — {{ user.email }}{% endblock %}
 
 {% block body %}
 
   <div class="mb-6">
-    <h1 class="text-2xl font-bold">My Profile</h1>
+    <h1 class="text-2xl font-bold">Mon Profil</h1>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -54,10 +54,10 @@
     {# Activity log #}
     <div class="card bg-base-100 shadow-md lg:col-span-2">
       <div class="card-body">
-        <h2 class="card-title text-lg mb-2">Recent Activity</h2>
+        <h2 class="card-title text-lg mb-2">Activité Recente</h2>
 
         {% if logs is empty %}
-          <p class="text-base-content/40 text-sm">No activity recorded yet.</p>
+          <p class="text-base-content/40 text-sm">Aucune Activité Enregistrée.</p>
         {% else %}
           <ul class="timeline timeline-vertical timeline-compact">
             {% for log in logs %}
