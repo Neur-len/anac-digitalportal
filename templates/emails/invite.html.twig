@@ -15,19 +15,20 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>🏛 Digital Portal</h1>
+      <h1>🏛 Portail Digital</h1>
     </div>
     <div class="body">
       <p>Hello,</p>
-      <p>You have been invited to access the <strong>Digital Portal</strong>.</p>
-      <p>Click the button below to set your password and activate your account:</p>
+      <p>Vous avez reçu une invitation pour rejoindre le<strong> Portail Digital de l'ANAC.</strong>.</p>
+      <p>Cliquez sur le lien ci‑dessous afin de définir votre mot de passe :</p>
       <p style="text-align:center;">
-        <a href="{{ invite_url }}" class="btn">Activate my account →</a>
+        <a href="{{ invite_url }}" class="btn">Activer mon compte →</a>
       </p>
-      <p style="color:#999; font-size:13px;">This link expires in <strong>48 hours</strong>.<br>
-      If you did not expect this email, you can ignore it.</p>
+      <p style="color:#999; font-size:13px;">Ce lien expiera dans <strong>48 heures</strong>.<br>
+        Si vous ne souhaitez pas rejoindre le Portail Digital de l'ANAC, vous pouvez ignorer cet email.<br>
+      </p>
     </div>
-    <div class="footer">Digital Portal · {{ "now"|date("Y") }}</div>
+    <div class="footer">Portail Digital · {{ "now"|date("Y") }}</div>
   </div>
 </body>
 </html>

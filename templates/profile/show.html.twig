@@ -34,19 +34,19 @@
 
         <div class="text-sm text-base-content/60 w-full text-left space-y-1">
           <div class="flex justify-between">
-            <span>Status</span>
+            <span>Statut</span>
             <span class="badge {{ user.isActive() ? 'badge-success' : 'badge-error' }} badge-sm">
               {{ user.isActive() ? 'Active' : 'Inactive' }}
             </span>
           </div>
           <div class="flex justify-between">
-            <span>Last login</span>
+            <span>Dernière Connexion</span>
             <span>{{ user.lastLoginAt ? user.lastLoginAt|date('d M Y H:i') : 'Never' }}</span>
           </div>
         </div>
 
         <a href="{{ path('profile_settings') }}" class="btn btn-primary btn-sm w-full mt-4">
-          ⚙️ Settings
+          ⚙️ Paramètres
         </a>
       </div>
     </div>
@@ -54,7 +54,7 @@
     {# Activity log #}
     <div class="card bg-base-100 shadow-md lg:col-span-2">
       <div class="card-body">
-        <h2 class="card-title text-lg mb-2">Activité Recente</h2>
+        <h2 class="card-title text-lg mb-2">Activité Récente</h2>
 
         {% if logs is empty %}
           <p class="text-base-content/40 text-sm">Aucune Activité Enregistrée.</p>
@@ -67,9 +67,9 @@
                 </div>
                 <div class="timeline-end mb-4">
                   <div class="text-sm font-medium">
-                    {% if log.action == 'login' %}🔑 Logged in
-                    {% elseif log.action == 'password_changed' %}🔐 Changed password
-                    {% elseif log.action == 'profile_updated' %}👤 Updated profile
+                    {% if log.action == 'login' %}🔑 Connexion
+                    {% elseif log.action == 'password_changed' %}🔐 Mot de Passe Changé
+                    {% elseif log.action == 'profile_updated' %}👤 Profil Mise à Jour
                     {% else %}{{ log.action }}
                     {% endif %}
                   </div>

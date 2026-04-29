@@ -13,6 +13,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 
 class UserCreateType extends AbstractType
 {
@@ -31,20 +32,40 @@ class UserCreateType extends AbstractType
                 'multiple' => true,
                 'expanded' => true,
             ])
+            ->add('isAdmin', \Symfony\Component\Form\Extension\Core\Type\CheckboxType::class, [
+                'mapped'   => false,
+                'required' => false,
+                'label'    => 'Grant admin role (ROLE_ADMIN)',
+                'attr'     => ['class' => 'checkbox checkbox-primary'],
+            ])
             ->add('plainPassword', RepeatedType::class, [
                 'type'           => PasswordType::class,
                 'mapped'         => false,
-                'first_options'  => [
+                'first_options' => [
                     'label' => 'Password',
-                    'attr'  => ['class' => 'input input-bordered w-full'],
+                    'attr' => [
+                        'placeholder' => 'Enter a strong password',
+                        'autocomplete' => 'new-password',
+                    ],
                 ],
                 'second_options' => [
                     'label' => 'Confirm password',
-                    'attr'  => ['class' => 'input input-bordered w-full'],
+                    'attr' => [
+                        'placeholder' => 'Repeat password',
+                        'autocomplete' => 'new-password',
+                    ],
                 ],
                 'constraints' => [
-                    new NotBlank(),
-                    new Length(['min' => 8]),
+        new NotBlank(),
+        new Length(['min' => 8]),
+        new Regex([
+            'pattern' => '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
+            'message' => 'Password must contain at least:
+            - one uppercase letter
+            - one lowercase letter
+            - one number
+            - one special character'
+                    ])
                 ],
             ]);
     }

@@ -1,23 +1,47 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="corporate">
+<html lang="fr" data-theme="corporate">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — Digital Portal</title>
+  <title>Connexion — Portail Digital</title>
   {{ vite_entry_link_tags('app') }}
-</head>
-<body class="min-h-screen bg-base-200 flex flex-col lg:flex-row">
 
-  {# ── LEFT SIDE: Login Form ── #}
-  <div class="flex-1 flex items-center justify-center p-6 lg:p-12">
-    <div class="card bg-base-100 shadow-xl w-full max-w-sm">
+  <style>
+    /* On applique l'image au body avec un overlay sombre pour la lisibilité */
+    body {
+      background: 
+        linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), 
+        url('{{ asset("images/fly.jpg") }}') no-repeat center center fixed;
+      background-size: cover;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col lg:flex-row">
+
+    {# ✅ Mobile Greeting (only small screens) #}
+    <div class="text-center text-white m-6 lg:hidden drop-shadow-[0_4px_6px_rgba(0,0,0,0.7)]">
+        <h2 class="text-4xl font-bold tracking-wide drop-shadow-[0_4px_6px_rgba(0,0,0,0.7)]">Bienvenue</h2>
+        <p class="text-sm font-bold opacity-80 drop-shadow-[0_4px_6px_rgba(0,0,0,0.7)]">Accédez au portail digital sécurisé de l'ANAC BENIN</p>
+      </div>
+
+  {# ── GAUCHE : Formulaire (Transparent pour voir l'image) ── #}
+  <div class="flex-1 flex items-center justify-center p-6 lg:p-12 bg-image">
+
+    <div class="card bg-base-100 shadow-xl w-full max-w-sm rounded-2xl">
       <div class="card-body">
 
         <div class="text-center mb-4">
-          <div class="text-4xl mb-2">🏛</div>
-          <h1 class="text-xl font-bold">Digital Portal</h1>
+          <div class="mb-2 flex justify-center">
+            <div class="p-3 rounded-full bg-primary/10 text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+          </div>
+          <h1 class="text-xl font-bold">Connexion</h1>
           <p class="text-base-content/50 text-sm">
-            {{ step == 'otp' ? 'Enter your verification code' : 'Sign in to continue' }}
+            {{ step == 'otp' ? 'Enter your verification code' : "Connectez-vous aux applications de l'ANAC" }}
           </p>
         </div>
 
@@ -34,18 +58,25 @@
             <div class="form-control">
               <label class="label"><span class="label-text">Email</span></label>
               <input type="email" name="email" required autofocus
-                     class="input input-bordered w-full"
+                     class="input input-bordered w-full shadow-sm rounded-xl"
                      placeholder="you@example.com">
             </div>
 
             <div class="form-control">
-              <label class="label"><span class="label-text">Password</span></label>
+              <label class="label"><span class="label-text">Mot de Passe</span></label>
               <input type="password" name="password" required
-                     class="input input-bordered w-full"
+                     class="input input-bordered w-full shadow-sm rounded-xl"
                      placeholder="••••••••">
             </div>
+            <div class="form-control">
+              <div class="flex justify-between items-center">
+                <a href="{{ path('app_forgot_password_request') }}" class="text-xs link link-primary no-underline hover:underline">
+                  Mot de passe Oublié ?
+                </a>
+              </div>
+            </div>
 
-            <button type="submit" class="btn btn-primary w-full mt-2">
+            <button type="submit" class="btn btn-primary w-full mt-2 shadow-sm rounded-xl">
               Continue →
             </button>
           </form>
@@ -58,11 +89,11 @@
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('auth') }}">
 
             <div class="alert alert-info text-sm">
-              A 6-digit code was sent to <strong>{{ email }}</strong>
+              Un code a 6 chiffres vous a été envoyé sur <strong>{{ email }}</strong>
             </div>
 
             <div class="form-control">
-              <label class="label"><span class="label-text">Verification Code</span></label>
+              <label class="label"><span class="label-text">Code de Vérification</span></label>
               <input type="text" name="otp" required autofocus
                      maxlength="6" pattern="[0-9]{6}"
                      class="input input-bordered w-full text-center text-2xl tracking-widest"
@@ -70,12 +101,12 @@
             </div>
 
             <button type="submit" class="btn btn-primary w-full mt-2">
-              Verify →
+              Verification →
             </button>
 
             <a href="{{ path('auth_login') }}" class="btn btn-ghost btn-sm w-full"
                onclick="fetch('', {method:'POST', body: new URLSearchParams({step: 'cancel'})})">
-              ← Use different account
+              ← Utiliser un autre compte
             </a>
           </form>
 
@@ -85,28 +116,26 @@
     </div>
   </div>
 
-  {# ── RIGHT SIDE: Logos Showcase ── #}
-  {# Hidden on mobile, takes remaining 50% on large screens #}
-  <div class="hidden lg:flex lg:flex-1 bg-base-300 relative items-center justify-center p-12 overflow-hidden">
+  {# ── DROITE : Logos (Effet Glassmorphism) ── #}
+  {# On utilise backdrop-blur et une opacité faible pour un effet haut de gamme #}
+  <div class="hidden lg:flex lg:flex-1 relative items-center justify-center p-12 overflow-hidden backdrop-blur-sm bg-white/5 border-l border-white/10">
     
-    {# Optional: A subtle gradient background to add depth #}
-    <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10"></div>
-
-    <div class="relative z-10 flex flex-col gap-10 items-center w-full max-w-md">
+    <div class="relative z-10 flex flex-col gap-10 items-center w-full max-w-xs">
       
-      {# First Logo Container #}
-      <div class="w-full aspect-[3/2] bg-base-100 rounded-3xl shadow-2xl flex items-center justify-center p-8 backdrop-blur-sm bg-opacity-80 transition-transform duration-500 hover:scale-105">
-
-        {# OPTION 2: If you are using Symfony's asset helper (Recommended) #}
-        <img src="{{ asset('images/anac_logo.png') }}" alt="Anac Logo" class="w-full h-full object-contain drop-shadow-md">
-      
+      {# ✅ Welcome Message #}
+      <div class="text-center text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.7)]">
+        <h2 class="text-4xl font-bold tracking-wide drop-shadow-[0_4px_6px_rgba(0,0,0,0.7)]">Bienvenue</h2>
+        <p class="text-md font-bold opacity-80 drop-shadow-[0_4px_6px_rgba(0,0,0,0.7)]">Accédez au portail digital sécurisé de l'ANAC BENIN</p>
       </div>
 
-      {# Second Logo Container #}
-      <div class="w-full aspect-[3/2] bg-base-100 rounded-3xl shadow-2xl flex items-center justify-center p-8 backdrop-blur-sm bg-opacity-80 transition-transform duration-500 hover:scale-105">
-        
-        <img src="{{ asset('images/mcv_logo.png') }}" alt="Ministere Logo" class="w-full h-full object-contain drop-shadow-md">
-      
+      {# Premier Logo #}
+      <div class="w-full aspect-[3/2] bg-white/90 rounded-3xl shadow-2xl flex items-center justify-center p-8 transition-transform duration-500 hover:scale-105">
+        <img src="{{ asset('images/anac_logo.png') }}" alt="Anac Logo" class="w-full h-full object-contain">
+      </div>
+
+      {# Second Logo #}
+      <div class="w-full aspect-[3/2] bg-white/90 rounded-3xl shadow-2xl flex items-center justify-center p-8 transition-transform duration-500 hover:scale-105">
+        <img src="{{ asset('images/mcv_logo.png') }}" alt="Ministere Logo" class="w-full h-full object-contain">
       </div>
 
     </div>

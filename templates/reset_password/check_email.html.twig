@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block title %}Email envoyé — Digital Portal{% endblock %}
+
+{% block body %}
+<div class="max-w-md mx-auto mt-10">
+    <div class="card bg-base-100 shadow-xl border-2 border-base-300 text-center">
+        <div class="card-body">
+            <div class="text-5xl mb-4">📩</div>
+            <h2 class="card-title justify-center text-2xl font-black">Vérifiez vos emails</h2>
+            <p class="text-sm opacity-70 mt-2">
+                Un lien de récupération a été envoyé à votre adresse. Il expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+            </p>
+            <div class="divider"></div>
+            <p class="text-xs opacity-50">
+                Si vous ne recevez rien, vérifiez vos spams ou <a href="{{ path('app_forgot_password_request') }}" class="link link-primary">réessayez</a>.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

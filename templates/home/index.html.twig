@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
-{% block title %}Dashboard — Digital Portal{% endblock %}
+{% block title %}Tableau de Bord — Portail Digital{% endblock %}
 
 {% block body %}
   <div class="mb-6">
-    <h1 class="text-2xl font-bold">Dashboard</h1>
-    <p class="text-base-content/60 text-sm mt-1">Welcome to the Digital Portal</p>
+    <h1 class="text-2xl font-bold">Tableau de Bord</h1>
+    <p class="text-base-content/60 text-sm mt-1">Bienvenue sur le Portail Digital de l'ANAC</p>
   </div>
 
-  <h2 class="text-lg font-semibold mb-4">Available Applets</h2>
+  <h2 class="text-lg font-semibold mb-4">Applets Disponibles</h2>
 
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
     {% for applet in applets %}
@@ -20,9 +20,9 @@
               {{ applet.status }}
             </div>
             {% if applet.slug %}
-              <a href="{{ path('applet_show', {slug: applet.slug}) }}" class="btn btn-primary btn-sm">Open →</a>
+              <a href="{{ path('applet_show', {slug: applet.slug}) }}" class="btn btn-primary btn-sm">Accéder →</a>
             {% else %}
-              <span class="btn btn-primary btn-sm btn-disabled">Open →</span>
+              <span class="btn btn-primary btn-sm btn-disabled">Accéder →</span>
             {% endif %}
           </div>
         </div>
@@ -30,9 +30,9 @@
     {% else %}
       <div class="col-span-3 text-center text-base-content/30 py-16">
         <div class="text-5xl mb-3">📭</div>
-        <p>No applets available yet.</p>
+        <p>Aucun Applet Disponible.</p>
         {% if is_granted('ROLE_ADMIN') %}
-          <a href="{{ path('admin_applet_new') }}" class="btn btn-primary btn-sm mt-4">Register one</a>
+          <a href="{{ path('admin_applet_new') }}" class="btn btn-primary btn-sm mt-4">Enregistrer un premier Applet</a>
         {% endif %}
       </div>
     {% endfor %}
@@ -42,7 +42,7 @@
          class="card bg-base-100 shadow-md border-2 border-dashed border-base-300 hover:border-primary transition-colors">
         <div class="card-body items-center justify-center text-center text-base-content/30">
           <span class="text-4xl">＋</span>
-          <p class="text-sm mt-2">Register applet</p>
+          <p class="text-sm mt-2">Enregistrez un Applet</p>
         </div>
       </a>
     {% endif %}

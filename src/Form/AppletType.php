@@ -55,7 +55,9 @@ class AppletType extends AbstractType
                 ],
                 'multiple' => true,
                 'expanded' => true,
-                'attr'     => ['class' => 'flex gap-4'],
+                'attr' => [
+                    'class' => 'flex justify-between max-w-md mx-auto w-full'
+                ],
             ]);
     }
 

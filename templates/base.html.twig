@@ -6,127 +6,165 @@
     <title>{% block title %}Portail Digital{% endblock %}</title>
     {{ vite_entry_link_tags('app') }}
 
-    {# ── THEME INITIALIZATION (Prevents White Flash) ── #}
     <script>
       (function() {
-        // Check localStorage first for immediate UI response
         const saved = localStorage.getItem('portal-theme');
-        // Fallback to the Database theme if localStorage is empty
         const dbTheme = '{{ app.user and app.user.theme ? app.user.theme : "" }}';
-
-        const themeToApply = saved || dbTheme || 'corporate';
-
-        document.documentElement.setAttribute('data-theme', themeToApply);
+        document.documentElement.setAttribute('data-theme', saved || dbTheme || 'corporate');
       })();
     </script>
+    
+    <style>
+        /* Signature visuelle : Bordures plus affirmées sur les éléments actifs */
+        .menu li a.active { 
+            border-left: 4px solid oklch(var(--p)); 
+            font-weight: 900;
+            background: oklch(var(--b2));
+        }
+        .glass-header {
+            backdrop-filter: blur(12px);
+            background-color: oklch(var(--b1) / 0.8);
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-base-200 font-sans antialiased">
+<body class="min-h-screen bg-base-200/50 font-sans antialiased text-base-content">
 
   <div class="drawer lg:drawer-open">
     <input id="sidebar-drawer" type="checkbox" class="drawer-toggle"/>
 
-    {# ── Main Content Area ── #}
+    {# ── CONTENU PRINCIPAL ── #}
     <div class="drawer-content flex flex-col">
       
-      {# ── Navbar (Inside content so it scrolls/behaves with the drawer) ── #}
-      <header class="navbar bg-base-100/80 backdrop-blur-md shadow-sm px-4 sticky top-0 z-30 border-b border-base-200">
+      {# ── NAVBAR ── #}
+      <header class="navbar glass-header sticky top-0 z-30 border-b-2 border-base-300 px-4 lg:px-8">
         <div class="flex-none lg:hidden">
           <label for="sidebar-drawer" class="btn btn-ghost btn-square">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
           </label>
         </div>
         
-        <div class="flex-1 lg:hidden">
-          <a href="/" class="text-xl font-bold text-primary ml-2">🏛 Portail Digital</a>
+        <div class="flex-1">
+            {# Titre dynamique ou Breadcrumb #}
+            <h2 class="hidden lg:block text-sm font-black uppercase tracking-widest opacity-40 italic">
+                Administration / {{ block('title')|default('Dashboard') }}
+            </h2>
         </div>
 
-        <div class="flex-1 hidden lg:flex">
-          {# Breadcrumbs or Page Title could go here #}
-        </div>
-
-        <div class="flex-none gap-2">
-          {# Theme Switcher #}
+        <div class="flex-none gap-4">
+          {# Theme Selector (Plus compact) #}
           <div class="dropdown dropdown-end">
-            <label tabindex="0" class="btn btn-ghost btn-sm">🎨 <span class="hidden md:inline">Theme</span></label>
-            <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-52 border border-base-200 mt-4">
-              <li><a onclick="setTheme('corporate')">🏢 Corporate</a></li>
-              <li><a onclick="setTheme('light')">☀️ Light</a></li>
-              <li><a onclick="setTheme('dark')">🌙 Dark</a></li>
-              <li><a onclick="setTheme('forest')">🌲 Forest</a></li>
+            <div tabindex="0" role="button" class="btn btn-ghost btn-sm border-2 border-base-300">
+                🎨 <span class="hidden sm:inline uppercase font-black text-xs">Style</span>
+            </div>
+            <ul tabindex="0" class="dropdown-content menu p-2 shadow-2xl bg-base-100 rounded-xl w-52 border-2 border-base-300 mt-4">
+              <li><a onclick="setTheme('corporate')" class="font-bold">🏢 Corporate</a></li>
+              <li><a onclick="setTheme('light')" class="font-bold">☀️ Light</a></li>
+              <li><a onclick="setTheme('dark')" class="font-bold">🌙 Dark</a></li>
+              <li><a onclick="setTheme('forest')" class="font-bold">🌲 Forest</a></li>
             </ul>
           </div>
 
           {# User Profile #}
           <div class="dropdown dropdown-end">
-            <label tabindex="0" class="btn btn-ghost btn-circle avatar placeholder border border-base-300">
-              <div class="bg-primary text-primary-content rounded-full w-9">
-                <span class="text-sm font-bold">{{ app.user ? app.user.getUserIdentifier()|slice(0,1)|upper : '?' }}</span>
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar border-2 border-primary shadow-sm">
+              <div class="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
+                <span class="font-black">{{ app.user ? app.user.getUserIdentifier()|slice(0,1)|upper : '?' }}</span>
               </div>
-            </label>
-            <ul tabindex="0" class="dropdown-content menu p-2 shadow-xl bg-base-100 rounded-box w-56 mt-4 border border-base-200">
-              <li class="menu-title px-4 py-2 border-b border-base-100">
-                <span class="text-xs opacity-50">Signed in as</span>
-                <div class="font-bold truncate">{{ app.user ? app.user.getUserIdentifier() : 'Guest' }}</div>
+            </div>
+            <ul tabindex="0" class="dropdown-content menu p-2 shadow-2xl bg-base-100 rounded-xl w-64 mt-4 border-2 border-base-300">
+              <li class="px-4 py-3 bg-base-200/50 rounded-lg mb-2">
+                <span class="text-[10px] uppercase font-black opacity-50 tracking-tighter">Session active</span>
+                <div class="font-bold truncate text-sm italic">{{ app.user ? app.user.getUserIdentifier() : 'Visiteur' }}</div>
               </li>
-              <li><a href="{{ path('profile_show') }}">👤 Votre Profil</a></li>
-              <li><a href="{{ path('profile_settings') }}">⚙️ Parametre</a></li>
+              <li><a href="{{ path('profile_show') }}" class="font-bold">👤 Votre Profil</a></li>
+              <li><a href="{{ path('profile_settings') }}" class="font-bold">⚙️ Paramètres</a></li>
               <div class="divider my-0"></div>
-              <li><a href="/auth/logout" class="text-error">🚪 Deconnexion</a></li>
+              <li><a href="/auth/logout" class="text-error font-black uppercase text-xs">🚪 Déconnexion</a></li>
             </ul>
           </div>
         </div>
       </header>
 
-      <main class="flex-1 p-6 lg:p-10 max-w-7xl w-full mx-auto">
+      {# ── GESTION DES MESSAGES FLASH (Crucial) ── #}
+      <div class="px-6 lg:px-10 mt-6 pointer-events-none sticky top-20 z-50">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} shadow-lg border-2 border-{{ label }} mb-2 pointer-events-auto max-w-md animate-bounce">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span class="font-bold text-sm">{{ message }}</span>
+                </div>
+            {% endfor %}
+        {% endfor %}
+      </div>
+
+      {# ── ZONE DE CONTENU ── #}
+      <main class="flex-1 p-6 lg:p-10 w-full max-w-[1600px] mx-auto">
         {% block body %}{% endblock %}
       </main>
 
-      <footer class="p-6 text-center text-xs text-base-content/40">
-        Portal v1.0 · Symfony 7.4 · {{ "now"|date("Y") }}
+      <footer class="p-8 text-center border-t border-base-300">
+        <p class="text-[10px] font-black uppercase tracking-[0.2em] opacity-30">
+            Digital Portal &copy; {{ "now"|date("Y") }} · Haute Sécurité · v1.2
+        </p>
       </footer>
     </div>
 
-    {# ── Sidebar ── #}
+    {# ── SIDEBAR ── #}
     <div class="drawer-side z-40">
       <label for="sidebar-drawer" class="drawer-overlay"></label>
-      <aside class="w-72 min-h-screen bg-base-100 border-r border-base-200 flex flex-col">
+      <aside class="w-50 min-h-screen bg-base-100 border-r-2 border-base-300 flex flex-col">
         
-        <div class="p-6 hidden lg:block">
-          <a href="/" class="text-2xl font-bold text-primary flex items-center gap-2">
-            🏛 <span class="tracking-tight">Portail Digital</span>
+        {# Logo Section #}
+        <div class="p-8 border-b-2 border-base-200 bg-base-200/20">
+          <a href="/" class="group flex flex-col items-center gap-2">
+            <img src="{{ asset('images/anac_logo2.png') }}" alt="ANAC" class="h-16 w-auto drop-shadow-md transition-transform group-hover:scale-105"> 
+            <span class="text-xl font-black uppercase italic tracking-tighter text-primary">Portail Digital</span>
           </a>
         </div>
 
-        <ul class="menu menu-md p-4 flex-1 gap-1">
-          <li>
-            <a href="{{ path('app_home') }}" class="{{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}">
-              🏠 Tableau de Bord
-            </a>
-          </li>
-
-          {% set applets = get_nav_applets() %}
-          {% if applets is not empty %}
-            <li class="menu-title mt-4"><span>Applets</span></li>
-            {% for applet in applets %}
-              <li>
-                <a href="{{ path('applet_show', {slug: applet.slug}) }}" 
-                   class="{{ app.request.pathInfo starts with '/applet/' ~ applet.slug ? 'active focus:text-white' : '' }}">
-                  <span class="text-xl">{{ applet.icon }}</span> {{ applet.name }}
-                </a>
-              </li>
-            {% endfor %}
-          {% endif %}
-
-          {% if is_granted('ROLE_ADMIN') %}
-            <li class="menu-title mt-4"><span>Administration</span></li>
+        {# Navigation #}
+        <nav class="p-4 flex-1 overflow-y-auto">
+          <ul class="menu menu-md gap-2">
             <li>
-              <a href="{{ path('admin_dashboard') }}" class="{{ app.request.pathInfo starts with '/admin' ? 'active' : '' }}">
-                🛠 Panneau de Control
+              <a href="{{ path('app_home') }}" class="{{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }} flex gap-4 items-center">
+                <span class="text-lg">🏠</span> <span class="font-black uppercase text-xs tracking-widest">Tableau de Bord</span>
               </a>
             </li>
-            <li><a href="{{ path('admin_users') }}">👤 Gestion Utilisateurs</a></li>
-          {% endif %}
-        </ul>
+
+            {% set applets = get_nav_applets() %}
+            {% if applets is not empty %}
+              <li class="menu-title mt-6"><span class="text-[10px] font-black uppercase text-primary/50 tracking-[0.3em]">Services Externes</span></li>
+              {% for applet in applets %}
+                <li>
+                  <a href="{{ path('applet_show', {slug: applet.slug}) }}" 
+                     class="{{ app.request.pathInfo starts with '/applet/' ~ applet.slug ? 'active' : '' }} flex gap-4 items-center">
+                    <span class="text-xl">{{ applet.icon }}</span> 
+                    <span class="font-bold text-sm">{{ applet.name }}</span>
+                  </a>
+                </li>
+              {% endfor %}
+            {% endif %}
+
+            {% if is_granted('ROLE_ADMIN') %}
+              <li class="menu-title mt-6"><span class="text-[10px] font-black uppercase text-error/50 tracking-[0.3em]">Administration</span></li>
+              <li>
+                <a href="{{ path('admin_dashboard') }}" class="{{ app.request.pathInfo starts with '/admin' and app.request.attributes.get('_route') != 'admin_users' ? 'active' : '' }} flex gap-4">
+                  <span>🛠️</span> <span class="font-bold">Console de Contrôle</span>
+                </a>
+              </li>
+              <li>
+                <a href="{{ path('admin_users') }}" class="{{ app.request.attributes.get('_route') == 'admin_users' ? 'active' : '' }} flex gap-4">
+                  <span>👤</span> <span class="font-bold">Gestion Utilisateurs</span>
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+
+        {# Version Footer #}
+        <div class="p-4 bg-base-300/30 text-center">
+            <span class="badge badge-outline badge-xs font-black opacity-50 italic">SECURE NODE-{{ "now"|date("d-m") }}</span>
+        </div>
       </aside>
     </div>
   </div>
@@ -138,12 +176,22 @@
       document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('portal-theme', theme);
       
-      // Bonus: If you want to persist to DB without a page reload
       fetch('/settings/update-theme', { 
         method: 'POST', 
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({theme: theme}) 
       });
     }
+
+    // Auto-hide flashes after 5 seconds
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(el => {
+            el.style.transition = "opacity 0.5s ease";
+            el.style.opacity = "0";
+            setTimeout(() => el.remove(), 500);
+        });
+    }, 5000);
   </script>
 </body>
 </html>

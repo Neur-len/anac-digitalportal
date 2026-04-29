@@ -2,26 +2,154 @@
 {% block title %}{{ title }} — Admin{% endblock %}
 
 {% block body %}
-  <div class="mb-6">
-    <h1 class="text-2xl font-bold">{{ title }}</h1>
-    <a href="{{ path('admin_users') }}" class="text-sm text-base-content/50 hover:underline">← Back to users</a>
-  </div>
+  <div class="max-w-2xl mx-auto">
 
-  <div class="card bg-base-100 shadow-md max-w-md">
-    <div class="card-body">
-      {{ form_start(form, {attr: {class: 'flex flex-col gap-4'}}) }}
-        {% for field in form %}
-          <div class="form-control">
-            {{ form_label(field, null, {label_attr: {class: 'label label-text font-medium'}}) }}
-            {{ form_widget(field) }}
-            {{ form_errors(field) }}
-          </div>
-        {% endfor %}
-        <div class="flex gap-3 mt-2">
-          <button type="submit" class="btn btn-primary">{{ title }}</button>
-          <a href="{{ path('admin_users') }}" class="btn btn-ghost">Cancel</a>
-        </div>
-      {{ form_end(form) }}
+    {# ── Header & Breadcrumbs ── #}
+    <div class="mb-8">
+      <div class="text-sm breadcrumbs text-base-content/50 mb-2">
+        <ul>
+          <li><a href="{{ path('admin_dashboard') }}">Admin</a></li>
+          <li><a href="{{ path('admin_users') }}">Users</a></li>
+          <li class="text-base-content font-semibold">{{ title }}</li>
+        </ul>
+      </div>
+      <h1 class="text-3xl font-black tracking-tight">{{ title }}</h1>
     </div>
+
+    {# ── Form Card ── #}
+    <div class="card bg-base-100 shadow-xl border-2 border-base-300 rounded-2xl">
+      <div class="card-body gap-6">
+
+        <div class="flex items-center gap-3 pb-4 border-b border-base-200">
+          <div class="p-2 bg-primary/10 text-primary rounded-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title text-sm uppercase tracking-widest opacity-60">User Account</h2>
+            <p class="text-xs opacity-50">Manage user information and credentials.</p>
+          </div>
+        </div>
+
+        {{ form_start(form, {attr: {class: 'flex flex-col gap-5'}}) }}
+
+        {# ── Email ── #}
+        <div class="form-control w-full">
+          {{ form_label(form.email, null, {
+            label_attr: {class: 'label label-text font-bold'}
+          }) }}
+          {{ form_widget(form.email, {
+            attr: {
+              class: 'input input-bordered border-2 w-full focus:border-primary'
+            }
+          }) }}
+          {{ form_errors(form.email) }}
+        </div>
+
+        {# ── Roles ── #}
+        <div class="form-control w-full">
+          {{ form_label(form.roles, null, {
+            label_attr: {class: 'label label-text font-bold'}
+          }) }}
+
+          <div class="flex justify-center gap-5 w-full py-4">
+            {% for child in form.roles %}
+              <label class="flex items-center gap-2 cursor-pointer">
+                {{ form_widget(child, {
+                  attr: {class: 'checkbox checkbox-primary'}
+                }) }}
+                <span class="font-medium">{{ child.vars.label }}</span>
+              </label>
+            {% endfor %}
+          </div>
+
+          {{ form_errors(form.roles) }}
+        </div>
+
+        {# ── Active Account ── #}
+        <div class="form-control w-full">
+          <label class="flex items-center gap-3 cursor-pointer py-2">
+            {{ form_widget(form.isActive, {
+              attr: {class: 'checkbox checkbox-primary'}
+            }) }}
+            <span class="font-medium">{{ form.isActive.vars.label }}</span>
+          </label>
+          {{ form_errors(form.isActive) }}
+        </div>
+
+        {# ── Password ── #}
+        <div class="form-control w-full">
+          {{ form_label(form.plainPassword, 'Password', {
+            label_attr: {class: 'label label-text font-bold'}
+          }) }}
+
+          <div class="flex flex-col gap-3">
+
+            {# Password #}
+            <div>
+              {{ form_widget(form.plainPassword.first, {
+                attr: {
+                  class: 'input input-bordered border-2 w-full focus:border-primary ' ~
+                         (form_errors(form.plainPassword.first) ? 'border-error' : '')
+                }
+              }) }}
+
+              <div class="text-xs opacity-60 mt-1">
+                • At least 8 characters<br>
+                • Uppercase & lowercase letters<br>
+                • At least one number<br>
+                • One special character
+              </div>
+
+              {% if form_errors(form.plainPassword.first) %}
+                <div class="text-error text-xs mt-1 font-medium">
+                  {{ form_errors(form.plainPassword.first) }}
+                </div>
+              {% endif %}
+            </div>
+
+            {# Confirm Password #}
+            <div>
+              {{ form_widget(form.plainPassword.second, {
+                attr: {
+                  class: 'input input-bordered border-2 w-full focus:border-primary ' ~
+                         (form_errors(form.plainPassword.second) ? 'border-error' : '')
+                }
+              }) }}
+
+              {% if form_errors(form.plainPassword.second) %}
+                <div class="text-error text-xs mt-1 font-medium">
+                  {{ form_errors(form.plainPassword.second) }}
+                </div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+
+        {{ form_rest(form) }}
+
+        <div class="divider opacity-50"></div>
+
+        <div class="card-actions justify-end gap-3">
+          <a href="{{ path('admin_users') }}" class="btn btn-ghost">Cancel</a>
+          <button type="submit" class="btn btn-primary px-8">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M5 13l4 4L19 7"/>
+            </svg>
+            {{ title }}
+          </button>
+        </div>
+
+        {{ form_end(form) }}
+
+      </div>
+    </div>
+
   </div>
 {% endblock %}

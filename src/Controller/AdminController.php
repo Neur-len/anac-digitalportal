@@ -5,19 +5,18 @@ namespace App\Controller;
 use App\Entity\Applet;
 use App\Entity\User;
 use App\Form\AppletType;
+use App\Form\UserType;
+use App\Form\UserCreateType;
+use App\Service\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
-use App\Form\UserType;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use App\Form\UserCreateType;
-use App\Service\MailerService;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[Route('/admin', name: 'admin_')]
 class AdminController extends AbstractController
@@ -34,6 +33,8 @@ class AdminController extends AbstractController
             'user_count'   => $this->em->getRepository(User::class)->count([]),
         ]);
     }
+
+    // --- SECTION APPLETS ---
 
     #[Route('/applets', name: 'applets')]
     public function applets(): Response
@@ -90,9 +91,10 @@ class AdminController extends AbstractController
             $this->em->flush();
             $this->addFlash('success', 'Applet deleted.');
         }
-
         return $this->redirectToRoute('admin_applets');
     }
+
+    // --- SECTION USERS ---
 
     #[Route('/users', name: 'users')]
     public function users(): Response
@@ -102,134 +104,135 @@ class AdminController extends AbstractController
         ]);
     }
 
+    #[Route('/users/new', name: 'user_new')]
+    public function userNew(Request $request, MailerInterface $mailer): Response
+    {
+        $user = new User();
+        $form = $this->createForm(UserType::class, $user);
+        $form->handleRequest($request);
 
-#[Route('/users/new', name: 'user_new')]
-public function userNew(Request $request, MailerInterface $mailer): Response
-{
-    $user = new User();
-    $form = $this->createForm(UserType::class, $user);
-    $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $token = bin2hex(random_bytes(32));
+            $user->setInviteToken($token);
+            $user->setInviteTokenExpiresAt(new \DateTimeImmutable('+48 hours'));
+            $user->setPassword(''); 
+            $user->setIsActive(false);
+            
+            $this->em->persist($user);
+            $this->em->flush();
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        // Generate invite token
-        $token = bin2hex(random_bytes(32));
-        $user->setInviteToken($token);
-        $user->setInviteTokenExpiresAt(new \DateTimeImmutable('+48 hours'));
-        $user->setPassword('');       // empty until user sets it
-        $user->setIsActive(false);    // inactive until invite accepted
-        $this->em->persist($user);
-        $this->em->flush();
+            $inviteUrl = $this->generateUrl('auth_invite', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        // Send invite email
-        $inviteUrl = $this->generateUrl(
-            'auth_invite',
-            ['token' => $token],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
-
-        $mailer->send(
-            (new Email())
+            $mailer->send((new Email())
                 ->from('noreply@portal.local')
                 ->to($user->getEmail())
                 ->subject('You are invited to Digital Portal')
-                ->text("You have been invited to Digital Portal.\n\nClick the link to set your password:\n$inviteUrl\n\nThis link expires in 48 hours.")
-        );
+                ->text("You have been invited. Click to set your password:\n$inviteUrl")
+            );
 
-        $this->addFlash('success', "Invite sent to {$user->getEmail()}.");
+            $this->addFlash('success', "Invite sent to {$user->getEmail()}.");
+            return $this->redirectToRoute('admin_users');
+        }
+
+        return $this->render('admin/users/form.html.twig', [
+            'form'  => $form,
+            'title' => 'Invite User',
+        ]);
+    }
+
+    #[Route('/users/{id}/edit', name: 'user_edit')]
+    public function userEdit(User $user, Request $request, UserPasswordHasherInterface $hasher): Response
+    {
+        // On passe 'is_edit' => true pour que le mot de passe ne soit pas 'required' dans UserType
+        $form = $this->createForm(UserType::class, $user, ['is_edit' => true]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('plainPassword')->getData();
+            
+            if ($plainPassword) {
+                // FIX: Utilisation directe du $hasher injecté
+                $hashedPassword = $hasher->hashPassword($user, $plainPassword);
+                $user->setPassword($hashedPassword);
+            }
+            
+            $this->em->flush();
+            $this->addFlash('success', 'User updated.');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        return $this->render('admin/users/form.html.twig', [
+            'form'  => $form,
+            'title' => 'Edit User',
+        ]);
+    }
+
+    #[Route('/users/{id}/delete', name: 'user_delete', methods: ['POST'])]
+    public function userDelete(User $user, Request $request): Response
+    {
+        if ($this->isCsrfTokenValid('delete-user-'.$user->getId(), $request->request->get('_token'))) {
+            $this->em->remove($user);
+            $this->em->flush();
+            $this->addFlash('success', 'User deleted.');
+        }
         return $this->redirectToRoute('admin_users');
     }
 
-    return $this->render('admin/users/form.html.twig', [
-        'form'  => $form,
-        'title' => 'Invite User',
-    ]);
-}
-
-#[Route('/users/{id}/edit', name: 'user_edit')]
-public function userEdit(User $user, Request $request): Response
-{
-    $form = $this->createForm(UserType::class, $user, ['is_edit' => true]);
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted() && $form->isValid()) {
+    #[Route('/users/{id}/resend-invite', name: 'user_resend_invite', methods: ['POST'])]
+    public function resendInvite(User $user, MailerInterface $mailer): Response
+    {
+        $token = bin2hex(random_bytes(32));
+        $user->setInviteToken($token);
+        $user->setInviteTokenExpiresAt(new \DateTimeImmutable('+48 hours'));
         $this->em->flush();
-        $this->addFlash('success', 'User updated.');
-        return $this->redirectToRoute('admin_users');
-    }
 
-    return $this->render('admin/users/form.html.twig', [
-        'form'  => $form,
-        'title' => 'Edit User',
-    ]);
-}
+        $inviteUrl = $this->generateUrl('auth_invite', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
-#[Route('/users/{id}/delete', name: 'user_delete', methods: ['POST'])]
-public function userDelete(User $user, Request $request): Response
-{
-    if ($this->isCsrfTokenValid('delete-user-'.$user->getId(), $request->request->get('_token'))) {
-        $this->em->remove($user);
-        $this->em->flush();
-        $this->addFlash('success', 'User deleted.');
-    }
-    return $this->redirectToRoute('admin_users');
-}
-
-#[Route('/users/{id}/resend-invite', name: 'user_resend_invite', methods: ['POST'])]
-public function resendInvite(User $user, MailerInterface $mailer): Response
-{
-    $token = bin2hex(random_bytes(32));
-    $user->setInviteToken($token);
-    $user->setInviteTokenExpiresAt(new \DateTimeImmutable('+48 hours'));
-    $this->em->flush();
-
-    $inviteUrl = $this->generateUrl(
-        'auth_invite',
-        ['token' => $token],
-        UrlGeneratorInterface::ABSOLUTE_URL
-    );
-
-    $mailer->send(
-        (new Email())
+        $mailer->send((new Email())
             ->from('noreply@portal.local')
             ->to($user->getEmail())
             ->subject('Your Digital Portal invitation')
-            ->text("Click to set your password:\n$inviteUrl\n\nExpires in 48 hours.")
-    );
+            ->text("Click to set your password:\n$inviteUrl")
+        );
 
-    $this->addFlash('success', 'Invite resent.');
-    return $this->redirectToRoute('admin_users');
-}
-
-
-#[Route('/users/create', name: 'user_create')]
-public function userCreate(
-    Request $request,
-    UserPasswordHasherInterface $hasher,
-    MailerService $mailerService,
-): Response {
-    $user = new User();
-    $form = $this->createForm(UserCreateType::class, $user);
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted() && $form->isValid()) {
-        $plainPassword = $form->get('plainPassword')->getData();
-
-        $user->setPassword($hasher->hashPassword($user, $plainPassword));
-        $user->setIsActive(true);
-        $user->setMustChangePassword(true);
-        $this->em->persist($user);
-        $this->em->flush();
-
-        $loginUrl = $this->generateUrl('auth_login', [], UrlGeneratorInterface::ABSOLUTE_URL);
-        $mailerService->sendCredentials($user->getEmail(), $plainPassword, $loginUrl);
-
-        $this->addFlash('success', "User {$user->getEmail()} created. Credentials sent.");
+        $this->addFlash('success', 'Invite resent.');
         return $this->redirectToRoute('admin_users');
     }
 
-    return $this->render('admin/users/create.html.twig', [
-        'form'  => $form,
-        'title' => 'Create User',
-    ]);
-}
+    #[Route('/users/create', name: 'user_create')]
+    public function userCreate(
+        Request $request,
+        UserPasswordHasherInterface $hasher,
+        MailerService $mailerService,
+    ): Response {
+        $user = new User();
+        $form = $this->createForm(UserCreateType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('plainPassword')->getData();
+
+            $user->setPassword($hasher->hashPassword($user, $plainPassword));
+            $user->setIsActive(true);
+            $user->setMustChangePassword(true);
+            
+            if ($form->get('isAdmin')->getData()) {
+                $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+            }
+            
+            $this->em->persist($user);
+            $this->em->flush();
+
+            $loginUrl = $this->generateUrl('auth_login', [], UrlGeneratorInterface::ABSOLUTE_URL);
+            $mailerService->sendCredentials($user->getEmail(), $plainPassword, $loginUrl);
+
+            $this->addFlash('success', "User {$user->getEmail()} created. Credentials sent.");
+            return $this->redirectToRoute('admin_users');
+        }
+
+        return $this->render('admin/users/create.html.twig', [
+            'form'  => $form,
+            'title' => 'Create User',
+        ]);
+    }
 }
